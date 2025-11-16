@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 	"unsafe"
@@ -118,6 +119,13 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 
 	if !quiet {
 		fmt.Println(b2s(jsonData))
+	}
+
+	// Optional delay based on header value (seconds)
+	if v := ctx.Request.Header.Peek("X-Sleep-Seconds"); len(v) > 0 {
+		if n, err := strconv.Atoi(b2s(v)); err == nil && n > 0 {
+			time.Sleep(time.Duration(n) * time.Second)
+		}
 	}
 
 	ctx.SetContentType("application/json")
